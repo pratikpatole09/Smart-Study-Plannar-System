@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Study Planner</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        height: 100vh;
+        background: linear-gradient(135deg, #66ea83, #764ba2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        width: 400px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        animation: fadeIn 0.8s ease;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        transition: 0.3s;
+    }
+
+    input:focus {
+        border-color: #667eea;
+        outline: none;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    button {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .add-btn {
+        background: #28a745;
+    }
+
+    .add-btn:hover {
+        background: #218838;
+    }
+
+    .pdf-btn {
+        background: #007bff;
+    }
+
+    .pdf-btn:hover {
+        background: #0056b3;
+    }
+
+    ul {
+        margin-top: 15px;
+        list-style: none;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    li {
+        background: #f1f1f1;
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        animation: slideIn 0.3s ease;
+    }
+
+    .delete-btn {
+        background: red;
+        border: none;
+        color: white;
+        padding: 5px 8px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .delete-btn:hover {
+        background: darkred;
+    }
+
+    @keyframes fadeIn {
+        from {opacity: 0; transform: scale(0.9);}
+        to {opacity: 1; transform: scale(1);}
+    }
+
+    @keyframes slideIn {
+        from {opacity: 0; transform: translateX(-20px);}
+        to {opacity: 1; transform: translateX(0);}
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>📚 Smart Study Planner</h2>
+
+    <input type="text" id="subject" placeholder="Enter Subject">
+    <input type="number" id="hours" placeholder="Study Hours">
+
+    <div class="btn-group">
+        <button class="add-btn" onclick="addSubject()">Add</button>
+        <button class="pdf-btn" onclick="generatePDF()">Download</button>
+    </div>
+
+    <ul id="list"></ul>
+</div>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    let subjects = [];
+
+    function addSubject() {
+        let subject = document.getElementById("subject").value;
+        let hours = document.getElementById("hours").value;
+
+        if(subject === "" || hours === "") {
+            alert("Please enter all fields!");
+            return;
+        }
+
+        subjects.push({subject, hours});
+        renderList();
+
+        document.getElementById("subject").value = "";
+        document.getElementById("hours").value = "";
+    }
+
+    function renderList() {
+        let list = document.getElementById("list");
+        list.innerHTML = "";
+
+        subjects.forEach((item, index) => {
+            let li = document.createElement("li");
+            li.innerHTML = `
+                ${item.subject} - ${item.hours} hrs
+                <button class="delete-btn" onclick="deleteItem(${index})">X</button>
+            `;
+            list.appendChild(li);
+        });
+    }
+
+    function deleteItem(index) {
+        subjects.splice(index, 1);
+        renderList();
+    }
+
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        let doc = new jsPDF();
+
+        doc.setFontSize(16);
+        doc.text("Smart Study Planner Report", 20, 20);
+
+        let y = 30;
+        subjects.forEach((item, index) => {
+            doc.text(`${index + 1}. ${item.subject} - ${item.hours} hrs`, 20, y);
+            y += 10;
+        });
+
+        doc.save("Study_Report.pdf");
+    }
+</script>
+
+</body>
+</html>
